@@ -12,6 +12,7 @@
 
 > [!WARNING]
 > 使用前请确保已安装 [Google Chrome](https://www.google.com/chrome/) 浏览器，这是Selenium自动化测试的必要依赖  
+> 如果你没有安装Chrome，请自行安装，安装包我已经放到自解压文件解压到的根目录下    
 
 ## 📦 依赖安装(仅限于你想使用py文件)  
 

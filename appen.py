@@ -5,6 +5,19 @@ import threading
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
+from colorama import init, Fore, Style
+
+# ------------------------ 颜色支持双重保障 ------------------------
+# 方法1：强制Windows启用ANSI支持
+if sys.platform == "win32":
+    from ctypes import windll
+    kernel32 = windll.kernel32
+    kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+
+# 方法2：初始化Colorama（自动处理跨平台颜色）
+init(autoreset=True)
+
+# ------------------------ 主程序代码 ------------------------
 
 
 def get_chromedriver_path():
@@ -26,14 +39,16 @@ def get_chromedriver_path():
 
         for path in possible_paths:
             if os.path.exists(path):
-                print(f"\033[34m[+] Using chromedriver path: {path}\033[0m")
+                print(
+                    f"{Fore.BLUE}[+] Using chromedriver path: {path}{Style.RESET_ALL}")
                 return path
 
         raise FileNotFoundError(
             "chromedriver.exe not found, please ensure it's in the chromedriver-win64 folder")
 
     except Exception as e:
-        print(f"\033[31m[Error] Failed to locate chromedriver: {e}\033[0m")
+        print(
+            f"{Fore.RED}[ERROR] Failed to locate chromedriver: {e}{Style.RESET_ALL}")
         input("Press any key to exit...")
         sys.exit(1)
 
@@ -67,8 +82,8 @@ def load_website(url, use_cache):
 
         # 开始计时
         start_time = time.time()
-        print("\033[32m[+] Timer started...\033[0m")
-        print(f"\033[36m[+] Loading: {url}\033[0m")
+        print(f"{Fore.GREEN}[+] Timing started...{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[+] Loading URL: {url}{Style.RESET_ALL}")
 
         # 实时显示计时器
         timer_stop = False
@@ -77,7 +92,7 @@ def load_website(url, use_cache):
             while not timer_stop:
                 elapsed_time = time.time() - start_time
                 print(
-                    f"\033[33mElapsed time: {elapsed_time:.2f} seconds\033[0m", end="\r")
+                    f"{Fore.YELLOW}Elapsed time: {elapsed_time:.2f} seconds{Style.RESET_ALL}", end="\r")
                 time.sleep(0.1)
             print()
 
@@ -100,17 +115,18 @@ def load_website(url, use_cache):
 
         load_time = end_time - start_time
         print(
-            f"\033[32m[+] Page loaded successfully, total time: {load_time:.2f} seconds\033[0m")
+            f"{Fore.GREEN}[+] Page loaded successfully, total time: {load_time:.2f} seconds{Style.RESET_ALL}")
 
         # 保持浏览器打开5秒让用户查看
         print(
-            "\033[36m[+] Browser will remain open for 5 seconds for inspection...\033[0m")
+            f"{Fore.CYAN}[+] Browser window will remain open for 5 seconds...{Style.RESET_ALL}")
         time.sleep(5)
 
         return load_time
 
     except Exception as e:
-        print(f"\033[31m[Error] Failed to load website: {str(e)}\033[0m")
+        print(
+            f"{Fore.RED}[ERROR] Failed to load website: {str(e)}{Style.RESET_ALL}")
         return -1
 
     finally:
@@ -123,14 +139,15 @@ def main():
     try:
         # 显示欢迎信息
         print(
-            "\033[33m[+] Welcome to Website Loading Timer (External chromedriver version)\033[0m")
+            f"{Fore.YELLOW}[+] Welcome to Website Loading Timer (External chromedriver version){Style.RESET_ALL}")
         print(
-            "\033[34m[+] Please ensure chromedriver.exe is in the chromedriver-win64 folder\033[0m")
+            f"{Fore.BLUE}[+] Please ensure chromedriver.exe is in the chromedriver-win64 folder{Style.RESET_ALL}")
         print(
-            "\033[34m\033[34m[+] Author: Mete0r | Blog: \033[32mhttps://www.xscnet.cn\033[0m")
+            f"{Fore.BLUE}[+] Author: Mete0r | Blog: {Fore.GREEN}https://www.xscnet.cn{Style.RESET_ALL}")
 
         # 获取用户输入
-        url = input("\033[36m[+] Enter website URL to test: \033[0m").strip()
+        url = input(
+            f"{Fore.CYAN}[+] Enter website URL to test: {Style.RESET_ALL}").strip()
         if not url:
             raise ValueError("URL cannot be empty")
 
@@ -139,36 +156,39 @@ def main():
             url = f'https://{url}'
 
         # 缓存选项
-        use_cache = int(input("""\033[36m
+        use_cache = int(input(f"""{Fore.CYAN}
 Select cache mode:
 1. Disable local cache (first load will be slower)
 2. Use local cache (requires two loads)
-[+] Enter option (1/2): \033[0m"""))
+[+] Enter option number (1/2): {Style.RESET_ALL}"""))
 
         if use_cache not in (1, 2):
             raise ValueError("Please enter 1 or 2")
 
         # 预热加载（如果选择使用缓存）
         if use_cache == 2:
-            print("\033[35m[+] Performing warm-up load (not timed)...\033[0m")
+            print(
+                f"{Fore.MAGENTA}[+] Performing warm-up load (not timed)...{Style.RESET_ALL}")
             if load_website(url, use_cache=1) == -1:
                 raise RuntimeError("Warm-up load failed")
 
         # 正式加载并计时
-        print("\033[35m[+] Starting timed load...\033[0m")
+        print(f"{Fore.MAGENTA}[+] Starting timed load...{Style.RESET_ALL}")
         load_time = load_website(url, use_cache)
 
         if load_time > 0:
             print(
-                f"\033[32m[+] Final load time: {load_time:.2f} seconds\033[0m")
+                f"{Fore.GREEN}[+] Final load time: {load_time:.2f} seconds{Style.RESET_ALL}")
         else:
-            print("\033[31m[!] Failed to measure load time\033[0m")
+            print(
+                f"{Fore.RED}[!] Failed to measure load time{Style.RESET_ALL}")
 
     except Exception as e:
-        print(f"\033[31m[Error] {str(e)}\033[0m")
+        print(f"{Fore.RED}[ERROR] {str(e)}{Style.RESET_ALL}")
 
     finally:
-        print("\033[33m[+] Test completed, thank you for using!\033[0m")
+        print(
+            f"{Fore.YELLOW}[+] Test completed, thank you for using!{Style.RESET_ALL}")
         input("Press any key to exit...")
 
 

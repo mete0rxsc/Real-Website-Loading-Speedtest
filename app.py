@@ -5,6 +5,19 @@ import threading
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
+from colorama import init, Fore, Style
+
+# ------------------------ 颜色支持双重保障 ------------------------
+# 方法1：强制Windows启用ANSI支持
+if sys.platform == "win32":
+    from ctypes import windll
+    kernel32 = windll.kernel32
+    kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+
+# 方法2：初始化Colorama（自动处理跨平台颜色）
+init(autoreset=True)
+
+# ------------------------ 主程序代码 ------------------------
 
 
 def get_chromedriver_path():
@@ -26,14 +39,15 @@ def get_chromedriver_path():
 
         for path in possible_paths:
             if os.path.exists(path):
-                print(f"\033[34m[+] 使用chromedriver路径: {path}\033[0m")
+                print(
+                    f"{Fore.BLUE}[+] 使用chromedriver路径: {path}{Style.RESET_ALL}")
                 return path
 
         raise FileNotFoundError(
             "未找到chromedriver.exe，请确保它在程序目录下的chromedriver-win64文件夹中")
 
     except Exception as e:
-        print(f"\033[31m[错误] 无法定位chromedriver: {e}\033[0m")
+        print(f"{Fore.RED}[错误] 无法定位chromedriver: {e}{Style.RESET_ALL}")
         input("按任意键退出...")
         sys.exit(1)
 
@@ -67,8 +81,8 @@ def load_website(url, use_cache):
 
         # 开始计时
         start_time = time.time()
-        print("\033[32m[+] 开始计时...\033[0m")
-        print(f"\033[36m[+] 正在加载: {url}\033[0m")
+        print(f"{Fore.GREEN}[+] 开始计时...{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}[+] 正在加载: {url}{Style.RESET_ALL}")
 
         # 实时显示计时器
         timer_stop = False
@@ -76,7 +90,8 @@ def load_website(url, use_cache):
         def display_timer():
             while not timer_stop:
                 elapsed_time = time.time() - start_time
-                print(f"\033[33m已加载时间: {elapsed_time:.2f} 秒\033[0m", end="\r")
+                print(
+                    f"{Fore.YELLOW}已加载时间: {elapsed_time:.2f} 秒{Style.RESET_ALL}", end="\r")
                 time.sleep(0.1)
             print()
 
@@ -98,16 +113,17 @@ def load_website(url, use_cache):
         timer_thread.join()
 
         load_time = end_time - start_time
-        print(f"\033[32m[+] 页面加载完成，总时间: {load_time:.2f} 秒\033[0m")
+        print(
+            f"{Fore.GREEN}[+] 页面加载完成，总时间: {load_time:.2f} 秒{Style.RESET_ALL}")
 
         # 保持浏览器打开5秒让用户查看
-        print("\033[36m[+] 浏览器窗口将保持5秒供查看...\033[0m")
+        print(f"{Fore.CYAN}[+] 浏览器窗口将保持5秒供查看...{Style.RESET_ALL}")
         time.sleep(5)
 
         return load_time
 
     except Exception as e:
-        print(f"\033[31m[错误] 加载网站时出错: {str(e)}\033[0m")
+        print(f"{Fore.RED}[错误] 加载网站时出错: {str(e)}{Style.RESET_ALL}")
         return -1
 
     finally:
@@ -119,14 +135,15 @@ def main():
     """主程序"""
     try:
         # 显示欢迎信息
-        print("\033[33m[+] 欢迎使用网站加载计时器 (外置chromedriver版)\033[0m")
         print(
-            "\033[34m[+] 请确保chromedriver.exe位于程序目录下的chromedriver-win64文件夹中\033[0m")
+            f"{Fore.YELLOW}[+] 欢迎使用网站加载计时器 (外置chromedriver版){Style.RESET_ALL}")
         print(
-            "\033[34m\033[34m[+] 作者: Mete0r | 博客: \033[32mhttps://www.xscnet.cn\033[0m")
+            f"{Fore.BLUE}[+] 请确保chromedriver.exe位于程序目录下的chromedriver-win64文件夹中{Style.RESET_ALL}")
+        print(
+            f"{Fore.BLUE}[+] 作者: Mete0r | 博客: {Fore.GREEN}https://www.xscnet.cn{Style.RESET_ALL}")
 
         # 获取用户输入
-        url = input("\033[36m[+] 请输入待检测网站的网址: \033[0m").strip()
+        url = input(f"{Fore.CYAN}[+] 请输入待检测网站的网址: {Style.RESET_ALL}").strip()
         if not url:
             raise ValueError("网址不能为空")
 
@@ -135,35 +152,36 @@ def main():
             url = f'https://{url}'
 
         # 缓存选项
-        use_cache = int(input("""\033[36m
+        use_cache = int(input(f"""{Fore.CYAN}
 请选择缓存模式:
 1. 不使用本地缓存(第一次加载较慢)
 2. 使用本地缓存(需要两次加载)
-[+] 请输入选项数字(1/2): \033[0m"""))
+[+] 请输入选项数字(1/2): {Style.RESET_ALL}"""))
 
         if use_cache not in (1, 2):
             raise ValueError("请输入1或2")
 
         # 预热加载（如果选择使用缓存）
         if use_cache == 2:
-            print("\033[35m[+] 正在进行预热加载（不计时）...\033[0m")
+            print(f"{Fore.MAGENTA}[+] 正在进行预热加载（不计时）...{Style.RESET_ALL}")
             if load_website(url, use_cache=1) == -1:
                 raise RuntimeError("预热加载失败")
 
         # 正式加载并计时
-        print("\033[35m[+] 开始正式加载并计时...\033[0m")
+        print(f"{Fore.MAGENTA}[+] 开始正式加载并计时...{Style.RESET_ALL}")
         load_time = load_website(url, use_cache)
 
         if load_time > 0:
-            print(f"\033[32m[+] 最终加载时间: {load_time:.2f} 秒\033[0m")
+            print(
+                f"{Fore.GREEN}[+] 最终加载时间: {load_time:.2f} 秒{Style.RESET_ALL}")
         else:
-            print("\033[31m[!] 未能成功测量加载时间\033[0m")
+            print(f"{Fore.RED}[!] 未能成功测量加载时间{Style.RESET_ALL}")
 
     except Exception as e:
-        print(f"\033[31m[错误] {str(e)}\033[0m")
+        print(f"{Fore.RED}[错误] {str(e)}{Style.RESET_ALL}")
 
     finally:
-        print("\033[33m[+] 检测完成，感谢使用！\033[0m")
+        print(f"{Fore.YELLOW}[+] 检测完成，感谢使用！{Style.RESET_ALL}")
         input("按任意键退出...")
 
 
