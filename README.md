@@ -10,7 +10,7 @@
 - ✅ 自动定位chromedriver  
 - ✅ 彩色终端输出(Win10可能不支持)  
 
-> ⚠️ **Warning**  
+> [!WARNING]
 > 使用前请确保已安装 [Google Chrome](https://www.google.com/chrome/) 浏览器，这是Selenium自动化测试的必要依赖  
 
 ## 📦 依赖安装(仅限于你想使用py文件)  
